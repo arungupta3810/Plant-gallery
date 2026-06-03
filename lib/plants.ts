@@ -1,7 +1,9 @@
 export type Plant = {
   id: string;
+  slug?: string;
   name: string;
   botanical: string;
+  description?: string;
   price: number;
   oldPrice?: number;
   cat: string;
@@ -12,6 +14,8 @@ export type Plant = {
   badge: string | null;
   icon: string;
   theme: [string, string];
+  stock?: number;
+  images?: { url: string; alt: string | null; isPrimary: boolean }[];
 };
 
 export const PLANTS: Plant[] = [

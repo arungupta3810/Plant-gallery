@@ -1,0 +1,242 @@
+// Plant Gallery Business Platform — data model
+// Mirrors the "Database Modules" section of the project vision PDF.
+// Phase 1 entities are fully wired; Phase 2/3 entities (Lead, Subscription)
+// are modeled now so the backend can be moved to its own repo and grown.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Users ----------
+
+enum Role {
+  ADMIN
+  STAFF
+  CUSTOMER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String // bcrypt hash
+  name      String
+  phone     String?
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]
+  wishlist  WishlistItem[]
+  addresses Address[]
+  leads     Lead[]
+  subscriptions Subscription[]
+}
+
+model Address {
+  id      String  @id @default(cuid())
+  userId  String
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  line1   String
+  line2   String?
+  city    String
+  state   String?
+  zip     String
+  country String  @default("US")
+}
+
+// ---------- Products ----------
+
+model Category {
+  id     String  @id @default(cuid())
+  name   String  @unique
+  slug   String  @unique
+  plants Plant[]
+}
+
+model Plant {
+  id          String   @id @default(cuid())
+  slug        String   @unique // human id e.g. "monstera"
+  name        String
+  botanical   String
+  description String   @default("")
+  price       Int // cents-free whole dollars to match current UI
+  oldPrice    Int?
+  light       String
+  water       String
+  difficulty  String
+  petSafe     Boolean  @default(false)
+  badge       String?
+  icon        String   @default("leaf")
+  themeFrom   String   @default("#D7E9D8")
+  themeTo     String   @default("#A5D6A7")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  images        Image[]
+  inventory     Inventory?
+  orderItems    OrderItem[]
+  wishlistItems WishlistItem[]
+}
+
+model Image {
+  id      String  @id @default(cuid())
+  plantId String
+  plant   Plant   @relation(fields: [plantId], references: [id], onDelete: Cascade)
+  url     String
+  alt     String?
+  isPrimary Boolean @default(false)
+}
+
+model Inventory {
+  id        String @id @default(cuid())
+  plantId   String @unique
+  plant     Plant  @relation(fields: [plantId], references: [id], onDelete: Cascade)
+  stock     Int    @default(0)
+  lowStockAt Int   @default(3)
+}
+
+// ---------- Orders ----------
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  number    String      @unique // friendly tracking number e.g. PG-7K3Q2A
+  userId    String?
+  user      User?       @relation(fields: [userId], references: [id])
+  email     String
+  name      String
+  phone     String?
+  shipLine1 String
+  shipLine2 String?
+  shipCity  String
+  shipState String?
+  shipZip   String
+  status    OrderStatus @default(PENDING)
+  subtotal  Int
+  shipping  Int
+  total     Int
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  items   OrderItem[]
+  payment Payment?
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  order     Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  plantId   String
+  plant     Plant  @relation(fields: [plantId], references: [id])
+  name      String // snapshot at purchase time
+  price     Int
+  qty       Int
+}
+
+model Payment {
+  id        String        @id @default(cuid())
+  orderId   String        @unique
+  order     Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    PaymentStatus @default(UNPAID)
+  method    String        @default("cod") // cod | card (mock)
+  amount    Int
+  createdAt DateTime      @default(now())
+}
+
+// ---------- Wishlist ----------
+
+model WishlistItem {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plantId String
+  plant   Plant  @relation(fields: [plantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, plantId])
+}
+
+// ---------- Content ----------
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  excerpt   String
+  body      String
+  tag       String   @default("Plant care")
+  icon      String   @default("leaf")
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Faq {
+  id       String @id @default(cuid())
+  question String
+  answer   String
+  order    Int    @default(0)
+}
+
+model Banner {
+  id       String  @id @default(cuid())
+  title    String
+  subtitle String?
+  href     String  @default("/shop")
+  active   Boolean @default(true)
+  order    Int     @default(0)
+}
+
+// ---------- Customer Management (Phase 2) ----------
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  CONVERTED
+  CLOSED
+}
+
+model Lead {
+  id        String     @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  status    LeadStatus @default(NEW)
+  userId    String?
+  user      User?      @relation(fields: [userId], references: [id])
+  createdAt DateTime   @default(now())
+}
+
+// ---------- Subscriptions (Phase 3) ----------
+
+model Subscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan      String // "monthly-box" | "maintenance" | "consultation"
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

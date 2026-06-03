@@ -1,13 +1,56 @@
-# Plant Gallery — Web (Next.js)
+# Plant Gallery — Full-stack platform
 
-The customer storefront, built as a real **Next.js 14 (App Router) + TypeScript + Tailwind** project. The design mirrors the high-fidelity prototype in `../ui_kits/storefront/`; this is the runnable, production-shaped version of it.
+The Plant Gallery Business Platform (Phase 1 MVP), end-to-end:
 
-## Quick start
+- **`/` (this folder)** — customer storefront: **Next.js 14 (App Router) + TypeScript + Tailwind**.
+- **`/backend`** — REST API: **NestJS + Prisma + PostgreSQL + JWT**. Self-contained; can be lifted into its own repo (see [backend/README.md](backend/README.md)).
+
+The frontend talks to the backend over HTTP only (`NEXT_PUBLIC_API_URL`), so the two deploy and scale independently.
+
+## Quick start (run both)
+
+**1. Backend + database** (first terminal):
 ```bash
-cd nextjs-app
+cd backend
+cp .env.example .env
 npm install
-npm run dev
+npm run db:up            # Postgres via Docker
+npm run prisma:push      # create schema
+npm run prisma:generate
+npm run seed             # catalog, blog, FAQs, demo users
+npm run dev              # API on http://localhost:4000/api
 ```
+
+**2. Frontend** (second terminal):
+```bash
+npm install
+npm run dev              # storefront on http://localhost:3000
+```
+
+`.env.local` points the frontend at the API and sets the WhatsApp number:
+```
+NEXT_PUBLIC_API_URL=http://localhost:4000/api
+NEXT_PUBLIC_WHATSAPP=15551234567
+```
+
+### Demo logins (from seed)
+| Role     | Email                     | Password   |
+| -------- | ------------------------- | ---------- |
+| Admin    | `admin@plantgallery.test` | `admin123` |
+| Customer | `demo@plantgallery.test`  | `demo123`  |
+
+Admin dashboard lives at `/admin` (visible to ADMIN/STAFF users).
+
+## What works end-to-end (Phase 1 MVP)
+
+- **Catalog** — server-driven search, category/light/difficulty filters, sort.
+- **Plant detail** — live data, stock-aware "Add to cart", related plants.
+- **Cart & wishlist** — cart persists to `localStorage`; wishlist persists to the DB when logged in.
+- **Checkout → order → tracking** — guest or logged-in; server-priced orders, inventory decrement in a transaction, confirmation + `/track` + `/order/[number]` status timeline.
+- **Accounts** — register/login (JWT), account page with order history + wishlist.
+- **Journal (blog)**, **Contact/inquiry form** (creates a CRM lead), **WhatsApp** deep-links + floating button.
+- **Admin CMS** — dashboard stats, plant create/edit/delete + stock, order list + status updates. Role-guarded (customers get 403).
+
 Open http://localhost:3000
 
 ## What's here
@@ -38,5 +81,8 @@ tailwind.config.ts    Brand tokens mapped to Tailwind theme (bg-forest, text-cha
 ## Motion rule (keep this)
 Entrance animations animate **transform only**; overlays/drawers default to their **visible** state. This guarantees content is never stranded invisible during SSR, prefetch, or if an animation timeline is paused. Don't reintroduce opacity-0 keyframe starts with `fill-mode: both`.
 
-## Intentionally stubbed
-Auth, real checkout/payments, search, CMS, and real product photography (gradient + leaf-silhouette placeholders) are placeholders — this is the front-end design layer described in the platform vision doc (Phase 1 customer website). Wire it to the NestJS/PostgreSQL backend and an image source (S3/Cloudinary) to take it live.
+## Still stubbed / next steps
+- **Payments** — checkout supports cash-on-delivery and a *demo* card option that marks the order paid without a real charge. Integrate Stripe/Razorpay in `orders.service.ts` + the checkout page to take real payments.
+- **Product photography** — gradient + leaf-silhouette placeholders. The schema has an `Image` model ready; wire uploads to S3/Cloudinary.
+- **Notifications** (Phase 2) — email/WhatsApp dispatch hooks are marked in `contact.service.ts` / `orders.service.ts`.
+- **Phase 2/3 models** (`Lead`, `Subscription`) exist in the Prisma schema so CRM, notifications, and subscription boxes can be built without a migration rewrite.

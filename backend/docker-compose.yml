@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: plant-gallery-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: plant
+      POSTGRES_PASSWORD: plant
+      POSTGRES_DB: plant_gallery
+    ports:
+      - "5432:5432"
+    volumes:
+      - plant_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plant -d plant_gallery"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  plant_pg_data:

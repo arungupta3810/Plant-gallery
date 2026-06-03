@@ -5,7 +5,7 @@ import Icon from './Icon';
 import { useCart } from './CartContext';
 
 export default function Header() {
-  const { cartCount, wishCount, setDrawer } = useCart();
+  const { cartCount, wishCount, setDrawer, user } = useCart();
   return (
     <>
       <div className="announce">
@@ -18,16 +18,16 @@ export default function Header() {
           <nav className="nav">
             <Link href="/shop">Shop</Link>
             <Link href="/shop">Collections</Link>
-            <Link href="/shop">Plant care</Link>
-            <Link href="/shop">Journal</Link>
+            <Link href="/journal">Plant care</Link>
+            <Link href="/contact">Contact</Link>
           </nav>
           <div className="header-actions">
-            <button className="iconbtn" aria-label="Search"><Icon name="search" size={21} /></button>
-            <button className="iconbtn" aria-label="Account"><Icon name="user" size={21} /></button>
-            <button className="iconbtn" aria-label="Wishlist">
+            <Link href="/shop" className="iconbtn" aria-label="Search"><Icon name="search" size={21} /></Link>
+            <Link href={user ? '/account' : '/login'} className="iconbtn" aria-label="Account"><Icon name="user" size={21} /></Link>
+            <Link href="/account" className="iconbtn" aria-label="Wishlist">
               <Icon name="heart" size={21} />
               {wishCount > 0 && <span className="count">{wishCount}</span>}
-            </button>
+            </Link>
             <button className="iconbtn" aria-label="Cart" onClick={() => setDrawer(true)}>
               <Icon name="bag" size={21} />
               {cartCount > 0 && <span className="count">{cartCount}</span>}

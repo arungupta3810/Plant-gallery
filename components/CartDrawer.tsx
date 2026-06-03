@@ -55,7 +55,7 @@ export default function CartDrawer() {
               <div className="summary-row"><span>Subtotal</span><span style={{ color: 'var(--fg-1)', fontWeight: 600 }}>{'$' + subtotal}</span></div>
               <div className="summary-row"><span>Shipping</span><span style={{ color: shipping === 0 ? 'var(--success-fg)' : 'var(--fg-1)', fontWeight: 600 }}>{shipping === 0 ? 'Free' : '$' + shipping}</span></div>
               <div className="summary-row total"><span>Total</span><span>{'$' + (subtotal + shipping)}</span></div>
-              <button className="btn btn-primary btn-block btn-lg" style={{ marginTop: 16 }}>{'Checkout · $' + (subtotal + shipping)}</button>
+              <Link href="/checkout" className="btn btn-primary btn-block btn-lg" style={{ marginTop: 16 }} onClick={close}>{'Checkout · $' + (subtotal + shipping)}</Link>
               <button className="btn btn-ghost btn-block" style={{ marginTop: 8 }} onClick={close}>Continue shopping</button>
             </div>
           </>

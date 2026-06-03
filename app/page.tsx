@@ -1,15 +1,30 @@
 import Link from 'next/link';
-import { PLANTS } from '@/lib/plants';
+import { PLANTS, type Plant } from '@/lib/plants';
+import { api, type BlogPost } from '@/lib/api';
 import PlantCard from '@/components/PlantCard';
 import Icon from '@/components/Icon';
 
-export default function HomePage() {
-  const featured = PLANTS.slice(0, 4);
-  const guides = [
-    { icon: 'droplets', tag: 'Watering', t: 'How to tell when your plant is actually thirsty' },
-    { icon: 'sun', tag: 'Light', t: "Reading your room's light like a plant would" },
-    { icon: 'scissors', tag: 'Pruning', t: 'A gentle guide to your first trim' },
-  ];
+// Server component — fetches live data with a static fallback so the home page
+// still renders if the API is unavailable.
+export const dynamic = 'force-dynamic';
+
+const FALLBACK_GUIDES: { icon: string; tag: string; t: string; slug?: string }[] = [
+  { icon: 'droplets', tag: 'Watering', t: 'How to tell when your plant is actually thirsty' },
+  { icon: 'sun', tag: 'Light', t: "Reading your room's light like a plant would" },
+  { icon: 'scissors', tag: 'Pruning', t: 'A gentle guide to your first trim' },
+];
+
+export default async function HomePage() {
+  let featured: Plant[] = PLANTS.slice(0, 4);
+  let guides = FALLBACK_GUIDES;
+  try {
+    const plants = await api.plants();
+    if (plants.length) featured = plants.slice(0, 4);
+  } catch { /* fall back to static */ }
+  try {
+    const posts: BlogPost[] = await api.blog();
+    if (posts.length) guides = posts.slice(0, 3).map((p) => ({ icon: p.icon, tag: p.tag, t: p.title, slug: p.slug }));
+  } catch { /* fall back to static */ }
   return (
     <main>
       <section className="hero">
@@ -75,11 +90,11 @@ export default function HomePage() {
       <section className="wrap section">
         <div className="section-head">
           <div><span className="eyebrow"><Icon name="droplet" size={15} stroke={2} /> From the journal</span><h2>Plant care, made simple</h2></div>
-          <Link href="/shop" className="link-arrow">All guides <Icon name="arrowRight" size={17} stroke={2} /></Link>
+          <Link href="/journal" className="link-arrow">All guides <Icon name="arrowRight" size={17} stroke={2} /></Link>
         </div>
         <div className="valueprops">
           {guides.map((g) => (
-            <Link key={g.t} href="/shop" className="valueprop" style={{ flexDirection: 'column', gap: 14, textDecoration: 'none' }}>
+            <Link key={g.t} href={g.slug ? `/journal/${g.slug}` : '/journal'} className="valueprop" style={{ flexDirection: 'column', gap: 14, textDecoration: 'none' }}>
               <span className="ic"><Icon name={g.icon} size={22} /></span>
               <div>
                 <span className="eyebrow" style={{ fontSize: 11 }}>{g.tag}</span>
