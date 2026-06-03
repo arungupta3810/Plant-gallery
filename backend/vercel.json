@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "buildCommand": "prisma generate && prisma migrate deploy && nest build",
+  "buildCommand": "npm run vercel-build",
   "functions": {
     "api/index.ts": {
       "includeFiles": "prisma/**",
