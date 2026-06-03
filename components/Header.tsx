@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { useState } from 'react';
 import Logo from './Logo';
 import Icon from './Icon';
 import { useCart } from './CartContext';
@@ -7,6 +8,9 @@ import NotificationBell from './NotificationBell';
 
 export default function Header() {
   const { cartCount, wishCount, setDrawer, user } = useCart();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = () => setMenuOpen(false);
+
   return (
     <>
       <div className="announce">
@@ -15,6 +19,14 @@ export default function Header() {
       </div>
       <header className="header">
         <div className="wrap header-inner">
+          <button
+            className="iconbtn nav-toggle"
+            aria-label="Menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((o) => !o)}
+          >
+            <Icon name={menuOpen ? 'x' : 'menu'} size={22} />
+          </button>
           <Logo />
           <nav className="nav">
             <Link href="/shop">Shop</Link>
@@ -35,6 +47,19 @@ export default function Header() {
             </button>
           </div>
         </div>
+        {menuOpen && (
+          <>
+            <div className="mobile-nav-overlay" onClick={closeMenu} aria-hidden />
+            <nav className="mobile-nav">
+              <Link href="/shop" onClick={closeMenu}>Shop</Link>
+              <Link href="/journal" onClick={closeMenu}>Plant care</Link>
+              <Link href="/contact" onClick={closeMenu}>Contact</Link>
+              <Link href={user ? '/account' : '/login'} onClick={closeMenu}>
+                {user ? 'My account' : 'Sign in'}
+              </Link>
+            </nav>
+          </>
+        )}
       </header>
     </>
   );
