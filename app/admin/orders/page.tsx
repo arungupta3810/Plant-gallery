@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { api, type Order } from '@/lib/api';
 import Icon from '@/components/Icon';
+import { inr } from '@/lib/format';
 
 const STATUSES = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
 
@@ -41,7 +42,7 @@ export default function AdminOrdersPage() {
                 </button>
                 <span className="count-label">{o.name}</span>
                 <span className="count-label">{new Date(o.createdAt).toLocaleDateString()}</span>
-                <span className="pr">${o.total}</span>
+                <span className="pr">{inr(o.total)}</span>
                 <select value={o.status} onChange={(e) => updateStatus(o.number, e.target.value)}>
                   {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
@@ -53,7 +54,7 @@ export default function AdminOrdersPage() {
                       <div className="summary-line" key={it.id}>
                         <span className="qbadge">{it.qty}</span>
                         <span className="nm">{it.name}</span>
-                        <span className="pr">${it.price * it.qty}</span>
+                        <span className="pr">{inr(it.price * it.qty)}</span>
                       </div>
                     ))}
                   </div>

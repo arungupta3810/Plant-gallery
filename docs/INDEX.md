@@ -13,6 +13,10 @@
 
 Add topic files in `docs/learnings/` and list them here.
 
+## Completions
+
+- `.claude/completions/2026-06-03-fullstack-phase1-mvp.md` — built the NestJS+Prisma+Postgres backend and wired the storefront to it end-to-end (Phase 1 MVP)
+
 ---
 
 **Last Updated**: 2026-06-03

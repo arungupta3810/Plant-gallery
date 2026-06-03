@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import type { Plant } from '@/lib/plants';
 import Icon from '@/components/Icon';
+import { inr } from '@/lib/format';
 
 const EMPTY = {
   slug: '', name: '', botanical: '', description: '', price: 0, oldPrice: '',
@@ -90,8 +91,8 @@ function PlantsAdmin() {
         </div>
         <label className="field"><span>Description</span><textarea rows={2} value={form.description} onChange={setF('description')} /></label>
         <div className="field-row">
-          <label className="field"><span>Price ($)</span><input type="number" min={0} required value={form.price} onChange={setF('price')} /></label>
-          <label className="field"><span>Old price ($)</span><input type="number" min={0} value={form.oldPrice} onChange={setF('oldPrice')} /></label>
+          <label className="field"><span>Price (₹)</span><input type="number" min={0} required value={form.price} onChange={setF('price')} /></label>
+          <label className="field"><span>Old price (₹)</span><input type="number" min={0} value={form.oldPrice} onChange={setF('oldPrice')} /></label>
           <label className="field"><span>Stock</span><input type="number" min={0} required value={form.stock} onChange={setF('stock')} /></label>
         </div>
         <div className="field-row">
@@ -135,7 +136,7 @@ function PlantsAdmin() {
           {plants.map((p) => (
             <div className="admin-row" key={p.slug ?? p.id}>
               <span>{p.name}</span>
-              <span className="count-label">${p.price}</span>
+              <span className="count-label">{inr(p.price)}</span>
               <span className={'badge ' + ((p.stock ?? 0) <= 3 ? '' : 'success')}>{p.stock ?? 0} in stock</span>
               <button className="link-arrow" style={{ fontSize: 14 }} onClick={() => startEdit(p)}>Edit</button>
               <button className="cart-remove" onClick={() => remove(p.slug ?? p.id)} aria-label="Delete"><Icon name="trash" size={16} /></button>

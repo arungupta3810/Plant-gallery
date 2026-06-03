@@ -106,6 +106,10 @@ export type BlogPost = {
 };
 export type Faq = { id: string; question: string; answer: string };
 
+export type Review = { id: string; author: string; rating: number; body: string; createdAt: string };
+export type ReviewSummary = { average: number | null; count: number; reviews: Review[] };
+export type ReviewEligibility = { canReview: boolean; hasPurchased: boolean; alreadyReviewed: boolean };
+
 export type CheckoutPayload = {
   name: string; email: string; phone?: string;
   shipLine1: string; shipLine2?: string; shipCity: string; shipState?: string; shipZip: string;
@@ -152,6 +156,12 @@ export const api = {
   blog: () => request<BlogPost[]>('/blog'),
   blogPost: (slug: string) => request<BlogPost>(`/blog/${slug}`),
   faqs: () => request<Faq[]>('/faqs'),
+
+  // reviews
+  reviews: (slug: string) => request<ReviewSummary>(`/plants/${slug}/reviews`),
+  reviewEligibility: (slug: string) => request<ReviewEligibility>(`/plants/${slug}/reviews/eligibility`, { auth: true }),
+  addReview: (slug: string, b: { rating: number; body: string }) =>
+    request<ReviewSummary>(`/plants/${slug}/reviews`, { method: 'POST', body: b, auth: true }),
 
   // contact
   contact: (b: { name: string; email: string; phone?: string; message: string }) =>

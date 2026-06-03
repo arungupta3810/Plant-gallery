@@ -35,8 +35,11 @@ export class OrdersService {
       return { plant, qty: i.qty, price: plant.price };
     });
 
+    // Free delivery above ₹250, otherwise a flat ₹49 (Mumbai, India — INR).
+    const FREE_SHIPPING_THRESHOLD = 250;
+    const FLAT_SHIPPING = 49;
     const subtotal = lines.reduce((s, l) => s + l.price * l.qty, 0);
-    const shipping = subtotal >= 75 || subtotal === 0 ? 0 : 8;
+    const shipping = subtotal > FREE_SHIPPING_THRESHOLD || subtotal === 0 ? 0 : FLAT_SHIPPING;
     const total = subtotal + shipping;
     const method = dto.paymentMethod ?? 'cod';
 

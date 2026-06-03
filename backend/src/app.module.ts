@@ -7,6 +7,7 @@ import { OrdersModule } from './orders/orders.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { ContentModule } from './content/content.module';
 import { ContactModule } from './contact/contact.module';
+import { ReviewsModule } from './reviews/reviews.module';
 import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
 
@@ -20,6 +21,7 @@ import { AppController } from './app.controller';
     WishlistModule,
     ContentModule,
     ContactModule,
+    ReviewsModule,
     AdminModule,
   ],
   controllers: [AppController],

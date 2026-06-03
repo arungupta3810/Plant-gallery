@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import Icon from '@/components/Icon';
+import { inr } from '@/lib/format';
 
 type Stats = {
   plants: number; orders: number; customers: number; newLeads: number; revenue: number;
@@ -21,7 +22,7 @@ export default function AdminDashboard() {
   if (!stats) return <p className="count-label">Loading…</p>;
 
   const cards = [
-    { label: 'Revenue', value: `$${stats.revenue}`, icon: 'package' },
+    { label: 'Revenue', value: inr(stats.revenue), icon: 'package' },
     { label: 'Orders', value: stats.orders, icon: 'truck' },
     { label: 'Plants', value: stats.plants, icon: 'leaf' },
     { label: 'Customers', value: stats.customers, icon: 'user' },

@@ -4,6 +4,7 @@ import type { Plant } from '@/lib/plants';
 import { useCart } from './CartContext';
 import PlantMedia from './PlantMedia';
 import Icon from './Icon';
+import { inr } from '@/lib/format';
 
 export default function PlantCard({ plant }: { plant: Plant }) {
   const { addToCart, toggleFav, fav } = useCart();
@@ -25,7 +26,7 @@ export default function PlantCard({ plant }: { plant: Plant }) {
         <p className="pcard-name">{plant.name}</p>
         <p className="pcard-bot">{plant.botanical}</p>
         <div className="pcard-foot">
-          <span className="pcard-price">{'$' + plant.price}{plant.oldPrice && <span className="old">{'$' + plant.oldPrice}</span>}</span>
+          <span className="pcard-price">{inr(plant.price)}{plant.oldPrice && <span className="old">{inr(plant.oldPrice)}</span>}</span>
           <button className="pcard-add" onClick={(e) => { e.preventDefault(); addToCart(plant); }} aria-label="Add to cart">
             <Icon name="plus" size={18} stroke={2.2} color="#fff" />
           </button>

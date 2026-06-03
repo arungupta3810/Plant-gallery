@@ -54,7 +54,7 @@ export default function ContactPage() {
             )}
 
             <div className="contact-meta">
-              <div><span className="ic"><Icon name="mapPin" size={18} /></span> The Greenhouse, 12 Fern Lane</div>
+              <div><span className="ic"><Icon name="mapPin" size={18} /></span> The Greenhouse, Linking Road, Bandra West, Mumbai 400050</div>
               <div><span className="ic"><Icon name="clock" size={18} /></span> Mon–Sat, 9am–6pm</div>
             </div>
           </div>

@@ -6,9 +6,9 @@
 
 ## Project Overview
 
-nextjs application for See README
+Plant Gallery Business Platform — a full-stack plant nursery e-commerce app (Phase 1 MVP). Next.js storefront + self-contained NestJS API. See README.md and `.claude/completions/2026-06-03-fullstack-phase1-mvp.md`.
 
-**Tech Stack**: nextjs
+**Tech Stack**: Next.js 14 (App Router, TS, Tailwind) frontend · NestJS 10 + Prisma 5 + PostgreSQL + JWT backend (in `./backend`, movable to its own repo)
 
 ---
 

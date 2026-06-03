@@ -7,6 +7,7 @@ import { api, type Order } from '@/lib/api';
 import type { Plant } from '@/lib/plants';
 import PlantCard from '@/components/PlantCard';
 import Icon from '@/components/Icon';
+import { inr } from '@/lib/format';
 
 const LABEL: Record<string, string> = {
   PENDING: 'Pending', CONFIRMED: 'Confirmed', PROCESSING: 'Processing',
@@ -76,7 +77,7 @@ export default function AccountPage() {
                     <p className="count-label">{new Date(o.createdAt).toLocaleDateString()} · {o.items.reduce((s, i) => s + i.qty, 0)} items</p>
                   </div>
                   <span className={'badge ' + (o.status === 'CANCELLED' ? '' : 'success')}>{LABEL[o.status]}</span>
-                  <span className="pr">${o.total}</span>
+                  <span className="pr">{inr(o.total)}</span>
                   <Icon name="chevronRight" size={18} color="var(--fg-3)" />
                 </Link>
               ))}

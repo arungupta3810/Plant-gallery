@@ -10,14 +10,13 @@ export default function Header() {
     <>
       <div className="announce">
         <Icon name="truck" size={16} stroke={2} color="#A5D6A7" />
-        <span>Free delivery on orders over <strong>$75</strong> · Healthy-arrival guarantee</span>
+        <span>Free delivery in Mumbai on orders over <strong>₹250</strong> · Healthy-arrival guarantee</span>
       </div>
       <header className="header">
         <div className="wrap header-inner">
           <Logo />
           <nav className="nav">
             <Link href="/shop">Shop</Link>
-            <Link href="/shop">Collections</Link>
             <Link href="/journal">Plant care</Link>
             <Link href="/contact">Contact</Link>
           </nav>

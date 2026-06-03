@@ -5,11 +5,12 @@ import Link from 'next/link';
 import { useCart } from '@/components/CartContext';
 import { api } from '@/lib/api';
 import Icon from '@/components/Icon';
+import { inr, shippingFor } from '@/lib/format';
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, clearCart, user } = useCart();
-  const shipping = subtotal >= 75 || subtotal === 0 ? 0 : 8;
+  const shipping = shippingFor(subtotal);
   const total = subtotal + shipping;
 
   const [form, setForm] = useState({
@@ -107,7 +108,7 @@ export default function CheckoutPage() {
             {error && <p className="form-error">{error}</p>}
 
             <button className="btn btn-primary btn-block btn-lg" disabled={submitting}>
-              {submitting ? 'Placing order…' : `Place order · $${total}`}
+              {submitting ? 'Placing order…' : `Place order · ${inr(total)}`}
             </button>
           </form>
 
@@ -118,13 +119,13 @@ export default function CheckoutPage() {
                 <div className="summary-line" key={it.slug ?? it.id}>
                   <span className="qbadge">{it.qty}</span>
                   <span className="nm">{it.name}</span>
-                  <span className="pr">${it.price * it.qty}</span>
+                  <span className="pr">{inr(it.price * it.qty)}</span>
                 </div>
               ))}
             </div>
-            <div className="summary-row"><span>Subtotal</span><span style={{ color: 'var(--fg-1)', fontWeight: 600 }}>${subtotal}</span></div>
-            <div className="summary-row"><span>Shipping</span><span style={{ color: shipping === 0 ? 'var(--success-fg)' : 'var(--fg-1)', fontWeight: 600 }}>{shipping === 0 ? 'Free' : `$${shipping}`}</span></div>
-            <div className="summary-row total"><span>Total</span><span>${total}</span></div>
+            <div className="summary-row"><span>Subtotal</span><span style={{ color: 'var(--fg-1)', fontWeight: 600 }}>{inr(subtotal)}</span></div>
+            <div className="summary-row"><span>Shipping</span><span style={{ color: shipping === 0 ? 'var(--success-fg)' : 'var(--fg-1)', fontWeight: 600 }}>{shipping === 0 ? 'Free' : inr(shipping)}</span></div>
+            <div className="summary-row total"><span>Total</span><span>{inr(total)}</span></div>
             <p className="count-label" style={{ marginTop: 14 }}><Icon name="shield" size={14} /> 30-day healthy-arrival guarantee</p>
           </aside>
         </div>

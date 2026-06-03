@@ -4,6 +4,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { api, type Order } from '@/lib/api';
 import Icon from '@/components/Icon';
+import { inr } from '@/lib/format';
 
 const STEPS = ['CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED'];
 const LABEL: Record<string, string> = {
@@ -85,14 +86,14 @@ export default function OrderPage() {
               <div className="summary-line" key={it.id}>
                 <span className="qbadge">{it.qty}</span>
                 <span className="nm">{it.name}</span>
-                <span className="pr">${it.price * it.qty}</span>
+                <span className="pr">{inr(it.price * it.qty)}</span>
               </div>
             ))}
           </div>
 
-          <div className="summary-row"><span>Subtotal</span><span style={{ color: 'var(--fg-1)', fontWeight: 600 }}>${order.subtotal}</span></div>
-          <div className="summary-row"><span>Shipping</span><span style={{ color: order.shipping === 0 ? 'var(--success-fg)' : 'var(--fg-1)', fontWeight: 600 }}>{order.shipping === 0 ? 'Free' : `$${order.shipping}`}</span></div>
-          <div className="summary-row total"><span>Total</span><span>${order.total}</span></div>
+          <div className="summary-row"><span>Subtotal</span><span style={{ color: 'var(--fg-1)', fontWeight: 600 }}>{inr(order.subtotal)}</span></div>
+          <div className="summary-row"><span>Shipping</span><span style={{ color: order.shipping === 0 ? 'var(--success-fg)' : 'var(--fg-1)', fontWeight: 600 }}>{order.shipping === 0 ? 'Free' : inr(order.shipping)}</span></div>
+          <div className="summary-row total"><span>Total</span><span>{inr(order.total)}</span></div>
 
           <div className="order-ship">
             <h4>Shipping to</h4>

@@ -3,12 +3,13 @@ import Link from 'next/link';
 import { useCart } from './CartContext';
 import PlantMedia from './PlantMedia';
 import Icon from './Icon';
+import { inr, shippingFor } from '@/lib/format';
 
 export default function CartDrawer() {
   const { drawer, setDrawer, items, setQty, removeItem } = useCart();
   if (!drawer) return null;
   const subtotal = items.reduce((s, it) => s + it.price * it.qty, 0);
-  const shipping = subtotal >= 75 || subtotal === 0 ? 0 : 8;
+  const shipping = shippingFor(subtotal);
   const close = () => setDrawer(false);
 
   return (
@@ -44,7 +45,7 @@ export default function CartDrawer() {
                         <span>{it.qty}</span>
                         <button onClick={() => setQty(it, it.qty + 1)}><Icon name="plus" size={15} /></button>
                       </div>
-                      <span className="pr">{'$' + it.price * it.qty}</span>
+                      <span className="pr">{inr(it.price * it.qty)}</span>
                     </div>
                   </div>
                   <button className="cart-remove" onClick={() => removeItem(it)} aria-label="Remove"><Icon name="trash" size={17} /></button>
@@ -52,10 +53,10 @@ export default function CartDrawer() {
               ))}
             </div>
             <div className="drawer-foot">
-              <div className="summary-row"><span>Subtotal</span><span style={{ color: 'var(--fg-1)', fontWeight: 600 }}>{'$' + subtotal}</span></div>
-              <div className="summary-row"><span>Shipping</span><span style={{ color: shipping === 0 ? 'var(--success-fg)' : 'var(--fg-1)', fontWeight: 600 }}>{shipping === 0 ? 'Free' : '$' + shipping}</span></div>
-              <div className="summary-row total"><span>Total</span><span>{'$' + (subtotal + shipping)}</span></div>
-              <Link href="/checkout" className="btn btn-primary btn-block btn-lg" style={{ marginTop: 16 }} onClick={close}>{'Checkout · $' + (subtotal + shipping)}</Link>
+              <div className="summary-row"><span>Subtotal</span><span style={{ color: 'var(--fg-1)', fontWeight: 600 }}>{inr(subtotal)}</span></div>
+              <div className="summary-row"><span>Shipping</span><span style={{ color: shipping === 0 ? 'var(--success-fg)' : 'var(--fg-1)', fontWeight: 600 }}>{shipping === 0 ? 'Free' : inr(shipping)}</span></div>
+              <div className="summary-row total"><span>Total</span><span>{inr(subtotal + shipping)}</span></div>
+              <Link href="/checkout" className="btn btn-primary btn-block btn-lg" style={{ marginTop: 16 }} onClick={close}>{'Checkout · ' + inr(subtotal + shipping)}</Link>
               <button className="btn btn-ghost btn-block" style={{ marginTop: 8 }} onClick={close}>Continue shopping</button>
             </div>
           </>

@@ -8,7 +8,10 @@ import { useCart } from '@/components/CartContext';
 import PlantMedia from '@/components/PlantMedia';
 import PlantCard from '@/components/PlantCard';
 import { CareChip, Rating } from '@/components/CareChip';
+import Reviews from '@/components/Reviews';
 import Icon from '@/components/Icon';
+import { inr } from '@/lib/format';
+import type { ReviewSummary } from '@/lib/api';
 
 export default function PlantPage() {
   const params = useParams<{ id: string }>();
@@ -18,7 +21,12 @@ export default function PlantPage() {
 
   const [plant, setPlant] = useState<Plant | null>(null);
   const [rel, setRel] = useState<Plant[]>([]);
+  const [ratingSummary, setRatingSummary] = useState<ReviewSummary | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'notfound'>('loading');
+
+  useEffect(() => {
+    api.reviews(params.id).then(setRatingSummary).catch(() => setRatingSummary(null));
+  }, [params.id]);
 
   useEffect(() => {
     let cancelled = false;
@@ -96,8 +104,8 @@ export default function PlantPage() {
             {plant.badge && <span className="badge success">{plant.badge}</span>}
             <h1>{plant.name}</h1>
             <p className="bot">{plant.botanical}</p>
-            <Rating value={4.8} count={124} />
-            <div className="detail-price">{'$' + plant.price}{plant.oldPrice && <span className="old">{'$' + plant.oldPrice}</span>}</div>
+            <Rating value={ratingSummary?.average ?? null} count={ratingSummary?.count ?? 0} />
+            <div className="detail-price">{inr(plant.price)}{plant.oldPrice && <span className="old">{inr(plant.oldPrice)}</span>}</div>
             <p className="detail-desc">{plant.description || `A leafy favourite that brings instant calm to a room. Easygoing, forgiving, and happiest in ${plant.light.toLowerCase()} light — a great pick whether it's your first plant or your fortieth.`}</p>
 
             <div className="chips">
@@ -115,7 +123,7 @@ export default function PlantPage() {
                 <button onClick={() => setQty((n) => n + 1)}><Icon name="plus" size={18} /></button>
               </div>
               <button className="btn btn-primary btn-lg" style={{ flex: 1 }} disabled={!inStock} onClick={() => addToCart(plant, qty)}>
-                <Icon name="bag" size={18} color="#fff" /> {inStock ? 'Add to cart · $' + plant.price * qty : 'Sold out'}
+                <Icon name="bag" size={18} color="#fff" /> {inStock ? 'Add to cart · ' + inr(plant.price * qty) : 'Sold out'}
               </button>
               <button className="iconbtn" style={{ width: 52, height: 52, border: '1.5px solid var(--border)', color: fav[plant.id] ? 'var(--accent)' : 'var(--fg-2)' }} onClick={() => toggleFav(plant)} aria-label="Save">
                 <Icon name="heart" size={21} style={{ fill: fav[plant.id] ? 'currentColor' : 'none' }} />
@@ -135,13 +143,15 @@ export default function PlantPage() {
               Water {plant.water.toLowerCase()} — let the top inch of soil dry out between drinks. Give it {plant.light.toLowerCase()} light and keep it away from cold draughts. Wipe the leaves now and then so it can breathe.
             </Acc>
             <Acc id="ship" title="Shipping & returns">
-              Carefully packed and shipped within 2–3 business days. Free delivery over $75. If your plant arrives unhappy, our 30-day healthy-arrival guarantee has you covered.
+              Carefully packed and shipped within 2–3 business days across Mumbai. Free delivery over ₹250. If your plant arrives unhappy, our 30-day healthy-arrival guarantee has you covered.
             </Acc>
             <Acc id="pot" title="Pot & size">
               Arrives in a 14cm nursery pot, roughly 30–40cm tall including foliage. Decorative pots sold separately.
             </Acc>
           </div>
         </div>
+
+        <Reviews slug={plant.slug ?? plant.id} />
 
         {rel.length > 0 && (
           <section className="section">
