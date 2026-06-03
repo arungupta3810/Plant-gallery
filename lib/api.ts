@@ -106,6 +106,12 @@ export type BlogPost = {
 };
 export type Faq = { id: string; question: string; answer: string };
 
+export type Notification = {
+  id: string; type: string; title: string; body: string;
+  href?: string | null; read: boolean; createdAt: string;
+};
+export type NotificationList = { items: Notification[]; unread: number };
+
 export type Review = { id: string; author: string; rating: number; body: string; createdAt: string };
 export type ReviewSummary = { average: number | null; count: number; reviews: Review[] };
 export type ReviewEligibility = { canReview: boolean; hasPurchased: boolean; alreadyReviewed: boolean };
@@ -166,6 +172,13 @@ export const api = {
   // contact
   contact: (b: { name: string; email: string; phone?: string; message: string }) =>
     request<{ ok: boolean }>('/contact', { method: 'POST', body: b }),
+
+  // notifications
+  notifications: () => request<NotificationList>('/notifications', { auth: true }),
+  markNotificationRead: (id: string) =>
+    request<{ ok: boolean }>(`/notifications/${id}/read`, { method: 'PATCH', auth: true }),
+  markAllNotificationsRead: () =>
+    request<{ ok: boolean }>('/notifications/read-all', { method: 'PATCH', auth: true }),
 
   // admin
   adminStats: () => request<{

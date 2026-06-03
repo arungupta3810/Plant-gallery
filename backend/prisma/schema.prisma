@@ -36,6 +36,7 @@ model User {
   leads     Lead[]
   subscriptions Subscription[]
   reviews   Review[]
+  notifications Notification[]
 }
 
 model Address {
@@ -195,6 +196,30 @@ model Review {
 
   // One review per customer per plant.
   @@unique([userId, plantId])
+}
+
+// ---------- Notifications ----------
+
+enum NotificationType {
+  ORDER_PLACED
+  ORDER_STATUS
+  NEW_LEAD
+  LOW_STOCK
+  GENERAL
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType @default(GENERAL)
+  title     String
+  body      String
+  href      String? // optional deep-link (e.g. /order/PG-XXXX)
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, read])
 }
 
 // ---------- Content ----------

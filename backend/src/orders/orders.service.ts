@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto';
 
 const orderInclude = {
@@ -15,7 +16,10 @@ function genNumber() {
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationsService,
+  ) {}
 
   async create(dto: CreateOrderDto, userId?: string) {
     // Look up plants + prices server-side; never trust client prices.
@@ -91,6 +95,32 @@ export class OrdersService {
       return created;
     });
 
+    // Notify the customer (if logged in) across in-app + email + WhatsApp.
+    if (userId) {
+      await this.notifications.notify({
+        userId,
+        type: 'ORDER_PLACED',
+        title: `Order ${order.number} confirmed`,
+        body: `Thanks ${order.name}! We've received your order of ${order.items.length} item(s) — total ₹${order.total.toLocaleString('en-IN')}. We'll let you know when it ships.`,
+        href: `/order/${order.number}`,
+        channels: ['inapp', 'email', 'whatsapp'],
+        email: order.email,
+        phone: order.phone ?? undefined,
+      });
+    } else {
+      // Guest: no in-app inbox, but still send email/WhatsApp confirmation.
+      // (notify() needs a userId for the in-app record, so dispatch channels directly is overkill here;
+      //  guests get their confirmation on the order page. Email/WhatsApp for guests can be added later.)
+    }
+
+    // Notify admins/staff in-app of the new order.
+    await this.notifications.notifyAdmins({
+      type: 'ORDER_PLACED',
+      title: `New order ${order.number}`,
+      body: `${order.name} placed an order for ₹${order.total.toLocaleString('en-IN')} (${order.items.length} item(s)).`,
+      href: `/admin/orders`,
+    });
+
     return order;
   }
 
@@ -123,10 +153,31 @@ export class OrdersService {
   async updateStatus(number: string, dto: UpdateOrderStatusDto) {
     const order = await this.prisma.order.findUnique({ where: { number } });
     if (!order) throw new NotFoundException('Order not found');
-    return this.prisma.order.update({
+
+    const updated = await this.prisma.order.update({
       where: { number },
       data: { status: dto.status },
       include: orderInclude,
     });
+
+    // Notify the customer their order status changed.
+    const label: Record<string, string> = {
+      CONFIRMED: 'confirmed', PROCESSING: 'being prepared', SHIPPED: 'on its way',
+      DELIVERED: 'delivered', CANCELLED: 'cancelled', PENDING: 'pending',
+    };
+    if (order.userId) {
+      await this.notifications.notify({
+        userId: order.userId,
+        type: 'ORDER_STATUS',
+        title: `Order ${order.number} ${label[dto.status] ?? dto.status.toLowerCase()}`,
+        body: `Your order is now ${label[dto.status] ?? dto.status.toLowerCase()}.`,
+        href: `/order/${order.number}`,
+        channels: ['inapp', 'email', 'whatsapp'],
+        email: order.email,
+        phone: order.phone ?? undefined,
+      });
+    }
+
+    return updated;
   }
 }

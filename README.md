@@ -41,17 +41,32 @@ NEXT_PUBLIC_WHATSAPP=15551234567
 
 Admin dashboard lives at `/admin` (visible to ADMIN/STAFF users).
 
+## Locale
+
+Built for **Mumbai, India**: prices in **INR (₹)** via `lib/format.ts` (`inr()` formats with Indian digit grouping), **free delivery over ₹250** (else flat ₹49), Mumbai contact address, default country `IN`.
+
 ## What works end-to-end (Phase 1 MVP)
 
 - **Catalog** — server-driven search, category/light/difficulty filters, sort.
-- **Plant detail** — live data, stock-aware "Add to cart", related plants.
+- **Plant detail** — live data, stock-aware "Add to cart", related plants, **genuine reviews** (real average; "No reviews yet" when empty).
+- **Reviews** — verified-buyer only (must have ordered the plant), one per customer; rating = real average of real reviews. No hardcoded ratings.
 - **Cart & wishlist** — cart persists to `localStorage`; wishlist persists to the DB when logged in.
-- **Checkout → order → tracking** — guest or logged-in; server-priced orders, inventory decrement in a transaction, confirmation + `/track` + `/order/[number]` status timeline.
+- **Checkout → order → tracking** — guest or logged-in; server-priced orders, stock validation + inventory decrement in a transaction, confirmation + `/track` + `/order/[number]` status timeline.
+- **Inventory** — per-plant stock; checkout rejects oversell; out-of-stock disables Add-to-cart; admin low-stock dashboard. See [Inventory](#inventory--stock) below.
+- **Notifications** — in-app bell (unread count, mark-read, polling) + admin alerts + email + WhatsApp. Triggers: order placed (customer + admins), order status change (customer), new inquiry (admins). Email/WhatsApp log to console in dev; drop in credentials to go live. See `backend/src/notifications/`.
 - **Accounts** — register/login (JWT), account page with order history + wishlist.
-- **Journal (blog)**, **Contact/inquiry form** (creates a CRM lead), **WhatsApp** deep-links + floating button.
+- **Journal (blog)**, **Contact/inquiry form** (creates a CRM lead + notifies admins), **WhatsApp** deep-links + floating button.
 - **Admin CMS** — dashboard stats, plant create/edit/delete + stock, order list + status updates. Role-guarded (customers get 403).
 
 Open http://localhost:3000
+
+## Inventory & stock
+
+- Each plant has an `Inventory` record (`stock`, `lowStockAt`). Admins set/edit stock in `/admin/plants`.
+- **Checkout** ([backend/src/orders/orders.service.ts](backend/src/orders/orders.service.ts)) validates `stock >= qty` (rejects "Not enough stock") and decrements stock **inside a DB transaction**.
+- **Storefront** disables Add-to-cart and shows "Out of stock" / "Sold out" when `stock === 0`.
+- **Admin dashboard** lists low-stock plants (≤ 5) with restock deep-links.
+- **Known limitations** (not yet handled): the check-then-decrement isn't fully atomic against simultaneous orders (rare oversell race); cancelling an order does **not** restore stock; the shop grid/cart don't surface stock (only the detail page does).
 
 ## What's here
 ```
@@ -83,6 +98,8 @@ Entrance animations animate **transform only**; overlays/drawers default to thei
 
 ## Still stubbed / next steps
 - **Payments** — checkout supports cash-on-delivery and a *demo* card option that marks the order paid without a real charge. Integrate Stripe/Razorpay in `orders.service.ts` + the checkout page to take real payments.
+- **Email/WhatsApp sending** — the notification pipeline is built; channels log to console until credentials are set. Add `SMTP_*` (email) / `WHATSAPP_API_TOKEN` (WhatsApp) to `backend/.env` and implement the one TODO block in `backend/src/notifications/channels.ts`. Guest checkouts don't yet get email/WhatsApp confirmations (logged-in customers do).
 - **Product photography** — gradient + leaf-silhouette placeholders. The schema has an `Image` model ready; wire uploads to S3/Cloudinary.
-- **Notifications** (Phase 2) — email/WhatsApp dispatch hooks are marked in `contact.service.ts` / `orders.service.ts`.
-- **Phase 2/3 models** (`Lead`, `Subscription`) exist in the Prisma schema so CRM, notifications, and subscription boxes can be built without a migration rewrite.
+- **Inventory hardening** — atomic decrement against concurrent orders; restore stock on order cancellation; surface stock on shop grid/cart.
+- **Admin CMS gaps** — blog/FAQ/banner editors and a leads/inquiries viewer (data + APIs exist; no admin screens yet).
+- **Phase 2/3 models** (`Lead`, `Subscription`) exist in the Prisma schema so CRM and subscription boxes can be built without a migration rewrite.

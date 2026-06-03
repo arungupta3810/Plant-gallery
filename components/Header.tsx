@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Logo from './Logo';
 import Icon from './Icon';
 import { useCart } from './CartContext';
+import NotificationBell from './NotificationBell';
 
 export default function Header() {
   const { cartCount, wishCount, setDrawer, user } = useCart();
@@ -22,6 +23,7 @@ export default function Header() {
           </nav>
           <div className="header-actions">
             <Link href="/shop" className="iconbtn" aria-label="Search"><Icon name="search" size={21} /></Link>
+            <NotificationBell />
             <Link href={user ? '/account' : '/login'} className="iconbtn" aria-label="Account"><Icon name="user" size={21} /></Link>
             <Link href="/account" className="iconbtn" aria-label="Wishlist">
               <Icon name="heart" size={21} />

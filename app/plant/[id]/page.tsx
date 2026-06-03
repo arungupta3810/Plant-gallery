@@ -10,7 +10,7 @@ import PlantCard from '@/components/PlantCard';
 import { CareChip, Rating } from '@/components/CareChip';
 import Reviews from '@/components/Reviews';
 import Icon from '@/components/Icon';
-import { inr } from '@/lib/format';
+import { inr, lowStockLabel } from '@/lib/format';
 import type { ReviewSummary } from '@/lib/api';
 
 export default function PlantPage() {
@@ -69,6 +69,7 @@ export default function PlantPage() {
   }
 
   const inStock = plant.stock === undefined || plant.stock > 0;
+  const lowStock = lowStockLabel(plant.stock);
   const care = [
     { ic: 'sun', k: 'Light', v: plant.light },
     { ic: 'droplet', k: 'Water', v: plant.water },
@@ -115,6 +116,7 @@ export default function PlantPage() {
             </div>
 
             {!inStock && <p className="badge" style={{ background: 'var(--neutral-100)', color: 'var(--fg-2)', marginBottom: 12 }}>Out of stock</p>}
+            {inStock && lowStock && <p className="lowstock"><Icon name="bell" size={14} stroke={2} /> {lowStock}</p>}
 
             <div className="buy-row">
               <div className="qty">

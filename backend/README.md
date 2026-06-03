@@ -66,12 +66,38 @@ All routes are prefixed with `/api`.
 | GET    | `/blog`, `/blog/:slug`     | —           | Blog                            |
 | GET    | `/faqs`                    | —           | FAQs                            |
 | GET    | `/banners`                 | —           | Active banners                  |
-| POST   | `/contact`                 | optional    | Inquiry form → Lead             |
+| POST   | `/contact`                 | optional    | Inquiry form → Lead (+admin alert) |
 | GET    | `/contact/leads`           | ADMIN/STAFF | All leads                       |
-| GET    | `/admin/stats`             | ADMIN/STAFF | Dashboard stats                 |
+| GET    | `/plants/:slug/reviews`    | —           | Reviews + real average/count    |
+| GET    | `/plants/:slug/reviews/eligibility` | JWT | Can this user review?           |
+| POST   | `/plants/:slug/reviews`    | JWT         | Add review (verified buyer)     |
+| GET    | `/notifications`           | JWT         | In-app inbox + unread count     |
+| PATCH  | `/notifications/:id/read`  | JWT         | Mark one read                   |
+| PATCH  | `/notifications/read-all`  | JWT         | Mark all read                   |
+| GET    | `/admin/stats`             | ADMIN/STAFF | Dashboard stats (incl. low stock) |
+
+## Notifications
+
+`NotificationsService` (global module) creates in-app records and fans out to
+channels. `EmailChannel` / `WhatsAppChannel` log to console in dev; set `SMTP_*`
+or `WHATSAPP_API_TOKEN` in `.env` and fill the TODO in `notifications/channels.ts`
+to send for real. Triggers: order placed (customer + admins), order status change
+(customer), new inquiry (admins). Channels chosen per call (`['inapp','email','whatsapp']`).
+
+## Inventory
+
+Each plant has an `Inventory` row. Checkout validates stock and decrements it in a
+transaction; admin dashboard surfaces low stock (≤5). Not yet handled: atomic
+decrement under concurrency, and restock on cancellation.
+
+## Reviews
+
+Genuine, verified-buyer only — a user can review a plant only if they have an
+order containing it, one review per plant. The plant's rating is the real average
+(null/"no reviews" until one exists). No hardcoded ratings.
 
 ## Phase 2 / 3
 
-`Lead` and `Subscription` models and notification hooks are stubbed in the schema
-so the platform can grow (CRM, notifications, subscription boxes) without a
-migration rewrite.
+`Lead` and `Subscription` models are stubbed in the schema so the platform can grow
+(CRM, subscription boxes) without a migration rewrite. Notifications (Phase 2) are
+now implemented; email/WhatsApp need provider credentials to send for real.

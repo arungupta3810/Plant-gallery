@@ -4,11 +4,12 @@ import type { Plant } from '@/lib/plants';
 import { useCart } from './CartContext';
 import PlantMedia from './PlantMedia';
 import Icon from './Icon';
-import { inr } from '@/lib/format';
+import { inr, lowStockLabel } from '@/lib/format';
 
-export default function PlantCard({ plant }: { plant: Plant }) {
+export default function PlantCard({ plant }: Readonly<{ plant: Plant }>) {
   const { addToCart, toggleFav, fav } = useCart();
   const faved = !!fav[plant.id];
+  const lowStock = lowStockLabel(plant.stock);
   return (
     <Link href={`/plant/${plant.id}`} className="pcard rise">
       <div className="pcard-media" style={{ background: `linear-gradient(150deg, ${plant.theme[0]}, ${plant.theme[1]})` }}>
@@ -25,6 +26,7 @@ export default function PlantCard({ plant }: { plant: Plant }) {
       <div className="pcard-body">
         <p className="pcard-name">{plant.name}</p>
         <p className="pcard-bot">{plant.botanical}</p>
+        {lowStock && <p className="pcard-lowstock">{lowStock}</p>}
         <div className="pcard-foot">
           <span className="pcard-price">{inr(plant.price)}{plant.oldPrice && <span className="old">{inr(plant.oldPrice)}</span>}</span>
           <button className="pcard-add" onClick={(e) => { e.preventDefault(); addToCart(plant); }} aria-label="Add to cart">
