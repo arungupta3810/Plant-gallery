@@ -1,0 +1,40 @@
+'use client';
+import Link from 'next/link';
+import Logo from './Logo';
+import Icon from './Icon';
+import { useCart } from './CartContext';
+
+export default function Header() {
+  const { cartCount, wishCount, setDrawer } = useCart();
+  return (
+    <>
+      <div className="announce">
+        <Icon name="truck" size={16} stroke={2} color="#A5D6A7" />
+        <span>Free delivery on orders over <strong>$75</strong> · Healthy-arrival guarantee</span>
+      </div>
+      <header className="header">
+        <div className="wrap header-inner">
+          <Logo />
+          <nav className="nav">
+            <Link href="/shop">Shop</Link>
+            <Link href="/shop">Collections</Link>
+            <Link href="/shop">Plant care</Link>
+            <Link href="/shop">Journal</Link>
+          </nav>
+          <div className="header-actions">
+            <button className="iconbtn" aria-label="Search"><Icon name="search" size={21} /></button>
+            <button className="iconbtn" aria-label="Account"><Icon name="user" size={21} /></button>
+            <button className="iconbtn" aria-label="Wishlist">
+              <Icon name="heart" size={21} />
+              {wishCount > 0 && <span className="count">{wishCount}</span>}
+            </button>
+            <button className="iconbtn" aria-label="Cart" onClick={() => setDrawer(true)}>
+              <Icon name="bag" size={21} />
+              {cartCount > 0 && <span className="count">{cartCount}</span>}
+            </button>
+          </div>
+        </div>
+      </header>
+    </>
+  );
+}
