@@ -290,3 +290,12 @@ model Subscription {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
 }
+
+// ---------- Newsletter (footer "Get growing" signup) ----------
+// Email-only signups — no user account required, unlike Subscription above.
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

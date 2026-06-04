@@ -173,6 +173,13 @@ export const api = {
   contact: (b: { name: string; email: string; phone?: string; message: string }) =>
     request<{ ok: boolean }>('/contact', { method: 'POST', body: b }),
 
+  // newsletter
+  subscribeNewsletter: (email: string) =>
+    request<{ ok: boolean; alreadySubscribed: boolean }>('/newsletter/subscribe', {
+      method: 'POST',
+      body: { email },
+    }),
+
   // notifications
   notifications: () => request<NotificationList>('/notifications', { auth: true }),
   markNotificationRead: (id: string) =>

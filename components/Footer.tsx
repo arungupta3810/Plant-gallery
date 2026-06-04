@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Logo from './Logo';
 import Icon from './Icon';
+import NewsletterSignup from './NewsletterSignup';
 
 const cols = [
   { h: 'Shop', items: [
@@ -36,13 +37,7 @@ export default function Footer() {
         <div>
           <h5>Get growing</h5>
           <p style={{ margin: '0 0 12px' }}>Care tips and new arrivals, monthly.</p>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input
-              placeholder="you@email.com"
-              style={{ flex: 1, background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.18)', borderRadius: 'var(--radius-md)', padding: '11px 14px', color: '#fff', fontSize: 14 }}
-            />
-            <button className="btn btn-primary btn-sm">Join</button>
-          </div>
+          <NewsletterSignup />
         </div>
       </div>
       <div className="wrap footer-bottom">

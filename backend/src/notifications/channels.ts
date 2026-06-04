@@ -21,14 +21,40 @@ export class EmailChannel implements NotificationChannel {
   private readonly logger = new Logger('EmailChannel');
 
   async send(msg: ChannelMessage): Promise<void> {
-    // TODO: integrate real provider when EMAIL_* env vars are set.
-    // e.g. nodemailer.createTransport({...}).sendMail(...)
-    if (process.env.SMTP_HOST) {
-      // Real sending would go here once credentials are provided.
-      this.logger.log(`(SMTP configured) would send email to ${msg.to}: ${msg.subject}`);
+    const apiKey = process.env.RESEND_API_KEY;
+
+    // No key configured → dev mode: log instead of sending, so the app works
+    // end-to-end without a provider account.
+    if (!apiKey) {
+      this.logger.log(`📧 [DEV email] to=${msg.to} | ${msg.subject}\n   ${msg.body}`);
       return;
     }
-    this.logger.log(`📧 [DEV email] to=${msg.to} | ${msg.subject}\n   ${msg.body}`);
+
+    // Real delivery via Resend (https://resend.com) — plain REST, no SDK needed.
+    // EMAIL_FROM defaults to Resend's shared testing sender, which works
+    // immediately; set it to an address on your verified domain for production.
+    const from = process.env.EMAIL_FROM ?? 'Plant Gallery <onboarding@resend.dev>';
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from,
+        to: msg.to,
+        subject: msg.subject,
+        // body is plain text; wrap newlines so it renders as HTML too.
+        html: msg.body.replace(/\n/g, '<br>'),
+        text: msg.body,
+      }),
+    });
+
+    if (!res.ok) {
+      const detail = await res.text().catch(() => '');
+      throw new Error(`Resend responded ${res.status}: ${detail}`);
+    }
+    this.logger.log(`📧 sent email to ${msg.to}: ${msg.subject}`);
   }
 }
 

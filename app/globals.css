@@ -362,6 +362,8 @@ img { display:block; max-width:100%; }
   .hero-figure { aspect-ratio:16/10; }
   .plant-grid { grid-template-columns:repeat(3,1fr); }
   .shop-layout, .checkout-layout, .contact-layout, .admin-shell { grid-template-columns:1fr; }
+  /* single-col grid tracks need min-width:0 or wide children overflow the viewport */
+  .shop-layout > *, .checkout-layout > *, .contact-layout > *, .admin-shell > * { min-width:0; }
   .filters, .checkout-summary, .admin-nav { position:static; min-height:0; }
   .detail-media { position:static; }
   .admin-nav { flex-direction:row; flex-wrap:wrap; }
@@ -378,30 +380,113 @@ img { display:block; max-width:100%; }
   .footer { margin-top:64px; }
 }
 
-/* ---- phone: single-column grids, stacked rows, tighter spacing ---- */
+/* ============================================================
+   PHONE SPACING SYSTEM (≤560px)
+   The layout collapse (column counts / flex direction) is handled
+   above. This block re-tunes the *spacing scale* itself for small
+   screens: vertical rhythm, type sizes, radii, and component
+   padding/gaps that were calibrated for desktop and feel oversized
+   on a ~360–414px viewport.
+   ============================================================ */
 @media (max-width: 560px) {
-  .header-inner { gap:12px; }
-  .header-actions { gap:0; }
+  /* down-scale the global radius scale so 28–40px corners don't dominate */
+  :root {
+    --radius-lg:14px; --radius-xl:18px; --radius-2xl:22px;
+  }
+
+  /* --- vertical rhythm: sections breathe less on a phone --- */
+  .section { padding-top:36px; padding-bottom:36px; }
+  .section-head { margin-bottom:22px; }
+  .footer { margin-top:48px; }
+  .footer-top { padding-top:40px; padding-bottom:36px; }
+
+  /* --- type scale: large display headings step down --- */
+  .section-head h2 { font-size:25px; }
+  .section-head p { font-size:14.5px; }
+  .shop-head h1 { font-size:27px; }
+  .detail-info h1 { font-size:28px; }
+  .detail-price { font-size:27px; margin:16px 0; }
+  .detail-price .old { font-size:16px; }
+  .detail-desc { font-size:15px; }
+  .article h1 { font-size:26px; }
+  .article-body p { font-size:16px; }
+  .account-head h1, .contact-intro h1 { font-size:25px; }
+  .auth-card h1 { font-size:24px; }
+  .checkout-form h1, .order-head h1, .admin-main h1 { font-size:22px; }
+
+  /* --- header: balanced app-bar — hamburger left, logo centered, actions right --- */
+  .header-inner { gap:4px; height:58px; }
+  .logo { margin:0 auto; gap:8px; flex:none; }   /* center the brand; never squeeze it */
+  .logo .wm { font-size:18px; white-space:nowrap; } /* keep "Plant Gallery" on one line */
+  .logo svg { width:30px; height:30px; }
+  .nav-toggle { flex:none; }
+  .header-actions { gap:0; margin-left:0; flex:none; } /* logo's auto-margin pushes us right */
+  .iconbtn { width:38px; height:38px; }
+  .header .iconbtn[aria-label="Search"] { display:none; } /* redundant: Shop is in the menu */
+  .mobile-nav-overlay { inset:58px 0 0; }
+
+  /* --- hero: tighter gaps + margins so it isn't a tall empty column --- */
+  .hero-inner { gap:24px; padding-top:36px; padding-bottom:44px; }
+  .hero .lead { font-size:16px; margin-top:14px; }
+  .hero-cta { flex-direction:column; gap:10px; margin-top:24px; }
+  .hero-cta .btn { width:100%; }
+  .hero-trust { gap:16px 20px; margin-top:26px; }
+
+  /* --- product grid --- */
   .plant-grid, .plant-grid.cols-3 { grid-template-columns:repeat(2,1fr); gap:14px; }
-  .valueprops { grid-template-columns:1fr; }
-  .footer-top { grid-template-columns:1fr; gap:28px; padding-top:48px; }
+  .pcard-body { padding:12px 12px 14px; }
+  .pcard-name { font-size:15px; }
+
+  /* --- value props / band --- */
+  .valueprops { grid-template-columns:1fr; gap:12px; }
+  .valueprop { padding:18px; }
+  .band { gap:20px; }
+
+  /* --- footer --- */
+  .footer-top { grid-template-columns:1fr; gap:28px; }
   .footer-bottom { flex-direction:column; gap:10px; text-align:center; }
-  .care-grid { grid-template-columns:1fr; }
-  .section-head { flex-direction:column; align-items:flex-start; }
+
+  /* --- detail / care --- */
+  .care-grid { grid-template-columns:1fr; gap:10px; margin:18px 0; }
+  .detail { gap:28px; }
+  .buy-row { flex-wrap:wrap; gap:10px; }
+
+  /* --- shop toolbar --- */
   .shop-toolbar { flex-direction:column; align-items:stretch; gap:14px; }
   .sortbox { justify-content:space-between; }
-  .hero-cta { flex-direction:column; }
-  .hero-cta .btn { width:100%; }
-  .buy-row { flex-wrap:wrap; }
+  .sortbox select { flex:1; min-width:0; }
+  /* keep the announce strip + horizontal rows inside the viewport */
+  .announce { font-size:12px; padding:8px 14px; }
+  .crumbs { padding:16px 0; }
+
+  /* --- cards & forms: trim desktop padding --- */
+  .auth-card, .checkout-form, .order-card, .admin-form { padding:20px; }
+  .auth-card { margin:20px 0 40px; }
+  .checkout-summary { padding:20px; }
+  .review, .review-form { padding:18px; }
+
+  /* --- cart drawer: full-bleed on a phone, tighter internal padding --- */
+  .drawer { width:100%; max-width:100vw; }
+  .drawer-head { padding:18px 18px; }
+  .drawer-body { padding:8px 18px; }
+  .drawer-foot { padding:18px; }
+
+  /* --- stacked rows + reduced gaps --- */
+  .section-head { flex-direction:column; align-items:flex-start; }
   .order-head, .account-head { flex-direction:column; }
-  .stat-grid { grid-template-columns:repeat(2,1fr); }
-  /* let wide admin/order rows scroll instead of overflowing */
+  .stat-grid { grid-template-columns:repeat(2,1fr); gap:12px; }
   .admin-row, .order-row { gap:10px; }
-  .auth-card, .checkout-form, .order-card, .admin-form { padding:22px; }
 }
 
 /* ---- very small phones ---- */
 @media (max-width: 380px) {
-  .plant-grid, .plant-grid.cols-3 { grid-template-columns:1fr; }
+  .plant-grid, .plant-grid.cols-3 { grid-template-columns:1fr; gap:16px; }
   .stat-grid { grid-template-columns:1fr; }
+  .section-head h2 { font-size:23px; }
+  .detail-info h1, .shop-head h1 { font-size:25px; }
+  .hero h1 { font-size:32px; }
+  .btn { padding:12px 18px; }
+  /* narrowest phones: leaf-only brand so the action icons never crowd it */
+  .logo .wm { display:none; }
+  .header-actions .iconbtn { width:36px; height:36px; }
 }

@@ -7,6 +7,6 @@ import { EmailChannel, WhatsAppChannel } from './channels';
 @Module({
   providers: [NotificationsService, EmailChannel, WhatsAppChannel],
   controllers: [NotificationsController],
-  exports: [NotificationsService],
+  exports: [NotificationsService, EmailChannel],
 })
 export class NotificationsModule {}

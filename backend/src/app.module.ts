@@ -9,6 +9,7 @@ import { ContentModule } from './content/content.module';
 import { ContactModule } from './contact/contact.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { NewsletterModule } from './newsletter/newsletter.module';
 import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
 
@@ -24,6 +25,7 @@ import { AppController } from './app.controller';
     ContactModule,
     ReviewsModule,
     NotificationsModule,
+    NewsletterModule,
     AdminModule,
   ],
   controllers: [AppController],
